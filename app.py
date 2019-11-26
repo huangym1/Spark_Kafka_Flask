@@ -16,7 +16,7 @@ def background_thread():
     boy = 0
     for msg in consumer:
         data_json = msg.value.decode('utf8')
-        data_list = json.loads(data_json)
+        data_list = json.loads(data_json) # 将字符串转成列表，如[{"1": 3}, {"0": 4}, {"2": 3}]
         for data in data_list:
             if '0' in data.keys():
                 girl = data['0']
@@ -24,7 +24,7 @@ def background_thread():
                 boy = data['1']
             else:
                 continue
-        result = str(girl) + ',' + str(boy)
+        result = str(girl) + ',' + str(boy) # 得到字符串，如13,21
         print(result)
         socketio.emit('test_message',{'data':result})
 

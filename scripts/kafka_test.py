@@ -17,19 +17,24 @@ def KafkaWordCount(zkQuorum, group, topics, numThreads):
     topicMap = {}
     for topic in topicAry:
         topicMap[topic] = numThreads
-    lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(lambda x: x[1])
+
+    # 从kafka中创建一个input stream，类型是TransformedDStream
+    lines = KafkaUtils.createStream(ssc, zkQuorum, group, topicMap).map(lambda x: x[1]) # (None, 'x')
     words = lines.flatMap(lambda x: x.split(" "))
+    # reduceByKeyAndWindow _+_是对新产生的时间分片（time4,time5内RDD）进行统计，而_-_是对上一个窗口中，过时的时间分片进行统计
     wordcount = words.map(lambda x: (x, 1)).reduceByKeyAndWindow((lambda x, y: x + y), (lambda x, y: x - y), 1, 1, 1)
+    # wordcount的值像('1',3)('0',4)，这里所有tuple组成的数据就是rdd
     wordcount.foreachRDD(lambda x: sendmsg(x))
     ssc.start()
     ssc.awaitTermination()
 
-# 格式转化，将[["1", 3], ["0", 4], ["2", 3]]变为[{'1': 3}, {'0': 4}, {'2': 3}]，这样就不用修改第四个教程的代码了
+# 格式转化，将[('1', 3), ('0', 4), ('2', 3)]变为[{"1": 3}, {"0": 4}, {"2": 3}]
 def Get_dic(rdd_list):
     res = []
     for elm in rdd_list:
         tmp = {elm[0]: elm[1]}
         res.append(tmp)
+    # 列表/字典 --> 字符串
     return json.dumps(res)
 
 def sendmsg(rdd):
@@ -37,7 +42,7 @@ def sendmsg(rdd):
         msg = Get_dic(rdd.collect())
         # 实例化一个KafkaProducer示例，用于向Kafka投递消息
         producer = KafkaProducer(bootstrap_servers='localhost:9092')
-        producer.send("result", msg.encode('utf8'))
+        producer.send("result", msg.encode('utf8')) # msg是字符串，如[{"1": 3}, {"0": 4}, {"2": 3}]
         # 很重要，不然不会更新
         producer.flush()
 

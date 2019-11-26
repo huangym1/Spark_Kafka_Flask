@@ -7,22 +7,22 @@
 5. 利用Flask-SocketIO将数据实时推送给客户端。
 6. 客户端浏览器利用js框架socketio实时接收数据，然后利用js可视化库hightlights.js库动态展示。
 ## 运行
-### 运行kafka_test.py
+### 1、运行kafka_test.py
 接受sex这个topic的数据，统计数据后并把结果投递到result这个topic
 ```
 spark-submit --master spark://wong-1:7077  --executor-memory 512M --jars /usr/local/spark/jars/spark-streaming-kafka-0-8-assembly_2.11-2.4.4.jar kafka_test.py 127.0.0.1:2181 1 sex 1
 ```
-### 运行producer.py
+### 2、运行producer.py
 读log_result.csv这个文件，并把内容投递到sex
 ```
 python producer.py
 ```
-### 运行consumer.py
+### 3、运行consumer.py
 接受result的结果，并显示在终端
 ```
 python consumer.py
 ```
-### 运行app.py
+### 4、运行app.py
 启动flask，将结果展示到浏览器
 ```
 python app.py

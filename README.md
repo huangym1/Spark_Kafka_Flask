@@ -28,4 +28,4 @@ python consumer.py
 python app.py
 ```
 ## 结果展示
-![baidu](/blob/master/chart%20(1).png 结果展示)
+![image](https://github.com/huangym1/spark_kafka/blob/master/images/chart.png)

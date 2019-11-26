@@ -43,4 +43,5 @@ def handle_mes():
     return render_template("index.html")
 
 if __name__ == '__main__':
+    # debug运行
     socketio.run(app,debug=True,host="0.0.0.0")
